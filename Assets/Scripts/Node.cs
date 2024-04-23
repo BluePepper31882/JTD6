@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -11,10 +12,14 @@ public class Node : MonoBehaviour
 
     public Vector3 positionOffset;
 
-    [Header("Optional")]
-    public Renderer rend;
+    [HideInInspector]
     public GameObject turret;
+    [HideInInspector]
+    public Turretblueprint turretBlueprint;
+    [HideInInspector]
+    public bool isUpgraded = false;
 
+    public Renderer rend;
     BuildManager buildManager; 
     private void Start()
     {
@@ -32,18 +37,33 @@ public class Node : MonoBehaviour
         {
             return;
         }
+        if (turret != null)
+        {
+            buildManager.selectNode(this);
+            return;
+        }
         if (!buildManager.CanBuild)
         {
             return;
         }
-        if (turret != null)
+
+        buildTurret(buildManager.GetTurretToBuild());
+    }
+    void buildTurret(Turretblueprint blueprint)
+    {
+        if (PlayerStats.Money < blueprint.cost)
         {
-            Debug.Log("Space Occupied");
+            Debug.Log("Not Enough Money!");
             return;
         }
-
-        buildManager.buildTurretOn(this);
+        PlayerStats.Money -= blueprint.cost;
+        GameObject _turret = (GameObject)Instantiate(blueprint.prefab, GetBuildPosition(), Quaternion.identity);
+        turret = _turret;
+        turretBlueprint = blueprint;
+        GameObject effect = (GameObject)Instantiate(buildManager.buildEffect, GetBuildPosition(), Quaternion.identity);
+        Destroy(effect, 5f);
     }
+
     void OnMouseEnter()
     {
         if (EventSystem.current.IsPointerOverGameObject())
@@ -69,5 +89,25 @@ public class Node : MonoBehaviour
     private void OnMouseExit()
     {
         rend.material.color = afterColor;
+    }
+
+    public void UpgradeTurret()
+    {
+        if (PlayerStats.Money < turretBlueprint.upgradeCost)
+        {
+            Debug.Log("Not Enough Money to upgrade!");
+            return;
+        }
+        PlayerStats.Money -= turretBlueprint.upgradeCost;
+
+        Destroy(turret);
+
+        GameObject _turret = (GameObject)Instantiate(turretBlueprint.upgradedPrefab, GetBuildPosition(), Quaternion.identity);
+        turret = _turret;
+
+        GameObject effect = (GameObject)Instantiate(buildManager.buildEffect, GetBuildPosition(), Quaternion.identity);
+        Destroy(effect, 5f);
+
+        isUpgraded = true;
     }
 }

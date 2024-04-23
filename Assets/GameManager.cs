@@ -7,22 +7,40 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
 
-    private bool gameEnded = false;
-    private void Update()
+    
+
+    public static bool GameIsOver = false;
+
+    public GameObject gameOverUi;
+
+
+    void Start()
     {
-        if (gameEnded)
+        GameIsOver = false;
+    }
+
+    void Update()
+    {
+        if (GameIsOver)
         {
             return;
         }
+        if (Input.GetKeyDown("e"))
+        {
+            EndGame();
+        }
+
         if (PlayerStats.Lives <= 0)
         {
             EndGame();
-            gameEnded = true;
+            
         }
     }
 
     void EndGame()
     {
-        
+        GameIsOver = true;
+
+        gameOverUi.SetActive(true);
     }
 }

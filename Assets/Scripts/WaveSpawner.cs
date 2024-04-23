@@ -43,6 +43,7 @@ public class WaveSpawner : MonoBehaviour
 
 
         waveNumber++;
+        PlayerStats.rounds++;
     }
 
     void SpawnEnemy()

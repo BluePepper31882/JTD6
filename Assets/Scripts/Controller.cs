@@ -10,8 +10,15 @@ public class Controller : MonoBehaviour
     public float miny = 10f;
     public float maxy = 80f;
     public bool doMovement = true;
+
+    
     private void Update()
     {
+        if (GameManager.GameIsOver)
+        {
+            this.enabled = false;
+            return;
+        }
         if (Input.GetKeyDown (KeyCode.Escape))
         {
             doMovement = !doMovement;
